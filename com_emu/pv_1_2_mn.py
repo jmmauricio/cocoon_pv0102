@@ -65,11 +65,11 @@ def interSecureModelNetwork():
     Intf( 'enp0s8', node=sEEMU )  # EDIT the interface name here! 
 
     info( '*** Starting hosts \n')
-    POI   = net.addHost(  'POI', cls=Host, ip='10.0.0.3/16', defaultRoute='10.0.0.1',mac='00:00:00:00:00:03')  # POI 
-    PPC   = net.addHost(  'PPC', cls=Host, ip='10.0.0.4/16', defaultRoute='10.0.0.1',mac='00:00:00:00:00:04')  # PPC
-    Probe = net.addHost('Probe', cls=Host, ip='10.0.0.5/16', defaultRoute='10.0.0.1',mac='00:00:00:00:00:05')  # Probe    
-    LV0101 = net.addHost('LV0101', cls=Host, ip='10.0.1.1/16', defaultRoute='10.0.0.1',mac='00:00:00:00:01:01')  # Gen 0101    
-    LV0102 = net.addHost('LV0102', cls=Host, ip='10.0.1.2/16', defaultRoute='10.0.0.1',mac='00:00:00:00:01:02')  # Gen 0102    
+    PPC   = net.addHost(  'PPC',   cls=Host, ip='10.10.0.4/16', defaultRoute='10.0.0.1',mac='00:00:00:00:00:04')  # PPC
+    POI   = net.addHost(  'POI',   cls=Host, ip='10.10.0.5/16', defaultRoute='10.0.0.1',mac='00:00:00:00:00:05')  # POI 
+    LV0101 = net.addHost('LV0101', cls=Host, ip='10.10.1.1/16', defaultRoute='10.0.0.1',mac='00:00:00:00:01:01')  # Gen 0101    
+    LV0102 = net.addHost('LV0102', cls=Host, ip='10.10.1.2/16', defaultRoute='10.0.0.1',mac='00:00:00:00:01:02')  # Gen 0102    
+    #Probe = net.addHost('Probe',   cls=Host, ip='10.10.0.6/16', defaultRoute='10.0.0.1',mac='00:00:00:00:00:05')  # Probe    
 
     info( '*** Setting link parameters\n')
     #WAN1 = {'bw':1000,'delay':'20ms','loss':1,'jitter':'10ms'} 
@@ -80,7 +80,7 @@ def interSecureModelNetwork():
 
     net.addLink(  POI, sPOI)
     net.addLink(  PPC, sPOI)
-    net.addLink(Probe, sPOI)
+    #net.addLink(Probe, sPOI)
 
     net.addLink( sPOI, s0101)
     net.addLink(s0101, s0102)
@@ -109,12 +109,12 @@ def interSecureModelNetwork():
     info( '\n')
 
     info( '*** Preparing custom sgsim scripts \n')
-    #CLI.do_webserver = webserver    
-    net.get(  'POI').cmd('ifconfig POI-eth1 172.16.0.3 netmask 255.0.0.0')
-    net.get(  'PPC').cmd('ifconfig PPC-eth1 172.16.0.4 netmask 255.0.0.0')
+    # #CLI.do_webserver = webserver    
+    net.get(  'POI').cmd('ifconfig POI-eth1 10.0.0.5 netmask 255.0.0.0')
+    #net.get(  'PPC').cmd('ifconfig PPC-eth1 10.10.0.4 netmask 255.0.0.0')
     #net.get('Probe').cmd('ifconfig Probe-eth1 10.0.0.5 netmask 255.0.0.0')
-    net.get('LV0101').cmd('ifconfig LV0101-eth1 172.16.1.1 netmask 255.0.0.0')
-    net.get('LV0102').cmd('ifconfig LV0102-eth1 172.16.1.2 netmask 255.0.0.0')
+    net.get('LV0101').cmd('ifconfig LV0101-eth1 10.0.1.1 netmask 255.0.0.0')
+    net.get('LV0102').cmd('ifconfig LV0102-eth1 10.0.1.2 netmask 255.0.0.0')
 
     hosts_dict = {}
     for item in ['POI','LV0101','LV0102']:
