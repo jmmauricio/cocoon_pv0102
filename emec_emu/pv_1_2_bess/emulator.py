@@ -10,6 +10,7 @@ from fastapi.logger import logger as fastapi_logger
 from vrt_state import VRTStateMachine
 import asyncio
 from functions.initialization import *
+import argparse
 
 class Emulator():
 
@@ -334,10 +335,9 @@ class Emulator():
                 u_idx = self.model.inputs_run_list.index(item)
                 self.model.u_run[u_idx] = self.link.emec_setpoints_dict[item]
 
-            #print(self.link.measurements_dict)
             for item in self.link.measurements_dict:
                 self.link.measurements_dict[item] = self.model.get_value(item)
-
+ 
             V_LV = self.model.xy[np.array(self.V_y_idxs)+self.model.N_x]
             asyncio.run(self.calculate_states(V_LV))
             
@@ -374,6 +374,14 @@ class Emulator():
             
 
 if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-cfg_dev", help="id name of the device")
+    parser.add_argument("-cfg_ctrl", help="id name of the device")
+    args = parser.parse_args()
+
+    mode = 'dmlm'
+
     emu = Emulator()
     
     pvs = emu.config["input"]["pvs"]
@@ -406,10 +414,8 @@ if __name__ == "__main__":
 
     name = 'LINKER'
     mode = 'lmev'
-    cfg_dev = 'config_devices_mn.json' 
-    cfg_ctrl = 'config_controller.json'
 
-    link = Linker(name, cfg_dev, cfg_ctrl)
+    link = Linker(name, args.cfg_dev, args.cfg_ctrl)
     emu.link = link
     link.setup_multiple_device()
     p_modbus_server = Process(target=modbus_server, args=(link.modbus_linker_ip,link.modbus_linker_port,))

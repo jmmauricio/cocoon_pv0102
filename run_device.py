@@ -6,9 +6,9 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("id", help="id name of the device")
-    name = parser.id
-    mode = 'dmlm'
-    cfg_dev = './emec_emu/pv_1_2_bess/config_devices_linker.json' 
-    cfg_ctrl = './emec_emu/pv_1_2_bess/config_controller.json'
+    parser.add_argument("mode", help="working mode")
+    parser.add_argument("-cfg_dev", help="id name of the device")
+    parser.add_argument("-cfg_ctrl", help="id name of the device")
+    args = parser.parse_args()
 
-    linker_run(name, mode,cfg_dev, cfg_ctrl)
+    linker_run(args.id, args.mode, args.cfg_dev, args.cfg_ctrl)
