@@ -14,7 +14,7 @@
   },
   "linker_2": {
     "ip": "192.168.0.17",
-    "port": 5100
+    "port": 5000
   },
   "devices": [
     {"ing_id": "poi", "ing_type":     "poi", "emec_id":   "POI", "modbus_ip":"10.10.0.5","modbus_port":5002,"config":"poi", "linker_reg_0": 500},
