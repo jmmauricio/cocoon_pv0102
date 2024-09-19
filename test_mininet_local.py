@@ -44,7 +44,7 @@ for m in range(M):
 
 
 # reactive power references 
-q_ppc = int(0.8e6)
+q_ppc = int(-0.5e6)
 for m in range(M):
     for n in range(N):
         name =  f'LV{str(m+1).zfill(2)}{str(n+1).zfill(2)}'
