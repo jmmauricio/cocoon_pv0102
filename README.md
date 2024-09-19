@@ -35,10 +35,17 @@ Some tests can be done using `test_mininet_local.py` module.  (to_do)
 ## MININET-LAN mode
 
     python ./emec_emu/pv_1_2_bess/emulator.py -cfg_dev config_devices_mininet_lan.json -cfg_ctrl config_controller.json
+
+    cd cocoon_pv0102
+    sudo python3 ./com_emu/pv_1_2_mn.py
+
+    sudo python3 run_devices.py -cfg_dev config_devices_mininet_lan.json -cfg_ctrl config_controller.json
+    PPC python3 test_mininet_local.py
+
     python run_linker12.py -cfg_dev config_devices_mininet_lan.json -cfg_ctrl config_controller.json
-
-
     python run_device.py 'POI' dmlm -cfg_dev config_devices_mininet_lan.json -cfg_ctrl config_controller.json
+    
+    
     python ./emec_emu/pv_1_2_bess/emulator.py -cfg_dev config_devices_mininet_lan.json -cfg_ctrl config_controller.json
 
     git clone https://github.com/jmmauricio/colinker.git
