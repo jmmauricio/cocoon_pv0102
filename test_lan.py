@@ -1,14 +1,22 @@
 from colinker.modbus.modbus_client import Modbus_client
 
 ip = "192.168.2.101"
-port = 5100
+port = 5200
 mb = Modbus_client(ip,port=port)
 mb.start()
-reg_number = 0
+reg_number = 500
 value = mb.read(reg_number, 'int16',format = 'AB')
 print(f'V_POI = {value/1000:0.3f}')
 mb.close()
 
+ip = "10.0.0.2"
+port = 5200
+mb = Modbus_client(ip,port=port)
+mb.start()
+reg_number = 500
+value = mb.read(reg_number, 'int16',format = 'AB')
+print(f'V_POI = {value/1000:0.3f}')
+mb.close()
 
 # ip_prefix = "127.0"
 # port_prefix = "5"
