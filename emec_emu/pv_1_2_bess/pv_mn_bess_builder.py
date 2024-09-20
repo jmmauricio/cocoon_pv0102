@@ -1,5 +1,5 @@
 from pydae.bmapu import bmapu_builder
-from pydae.build_v2 import build_mkl
+from pydae.build_v2 import build_mkl,build_numba
 import makeconfigs
 
 P_Nom_MW = 2
@@ -58,11 +58,13 @@ for i_m in range(1,M+1):
 
 grid = bmapu_builder.bmapu(data)
 
-grid.uz_jacs = False
+grid.uz_jacs = True
 grid.verbose = True
-grid.construct(f'pv_{M}_{N}')
+# grid.construct(f'pv_{M}_{N}')
 
-build_mkl(grid.sys_dict, platform='Windows')
+#build_numba(grid.sys_dict, platform='Windows')
+# build_numba(grid.sys_dict)
+grid.build(f'pv_{M}_{N}')
 
 
 makeconfigs.simulator(M,N,S_pv_mva,S_bess_mva, V_kv, F,True)
