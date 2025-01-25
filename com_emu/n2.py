@@ -22,29 +22,6 @@ sudo mnexec -a 1433 bash
 
 sudo mnexec -a 1437 bash
 sudo mnexec -a 1439 bash
-
-
-mininet> dump
-<Host PPC: PPC-eth0:10.10.0.4 pid=4564> 
-<Host POI: POI-eth0:10.10.0.5,POI-eth1:None pid=4566> 
-<Host LV0101: LV0101-eth0:10.10.1.1,LV0101-eth1:None pid=4568> 
-<Host LV0102: LV0102-eth0:10.10.1.2,LV0102-eth1:None pid=4570> 
-<OVSSwitch sPOI: lo:127.0.0.1,sPOI-eth1:None,sPOI-eth2:None,sPOI-eth3:None pid=4549> 
-<OVSSwitch s0101: lo:127.0.0.1,s0101-eth1:None,s0101-eth2:None,s0101-eth3:None pid=4552> 
-<OVSSwitch s0102: lo:127.0.0.1,s0102-eth1:None,s0102-eth2:None pid=4555> 
-<OVSSwitch sEEMU: lo:127.0.0.1,enp0s8:None,sEEMU-eth2:None,sEEMU-eth3:None,sEEMU-eth4:None pid=4558> 
-<OVSController c0: 127.0.0.1:6633 pid=4541> 
-
-<Host PPC: PPC-eth0:10.10.0.4 pid=5402> 
-<Host POI: POI-eth0:10.10.0.5,POI-eth1:None pid=5404> 
-<Host LV0101: LV0101-eth0:10.10.1.1,LV0101-eth1:None pid=5406> 
-<Host LV0102: LV0102-eth0:10.10.1.2,LV0102-eth1:None pid=5408> 
-<OVSSwitch sPOI: lo:127.0.0.1,sPOI-eth1:None,sPOI-eth2:None,sPOI-eth3:None pid=5413> 
-<OVSSwitch sLV0102: lo:127.0.0.1,sLV0102-eth1:None,sLV0102-eth2:None pid=5416> 
-<OVSSwitch sLV0101: lo:127.0.0.1,sLV0101-eth1:None,sLV0101-eth2:None,sLV0101-eth3:None pid=5419> 
-<OVSSwitch sEEMU: lo:127.0.0.1,sEEMU-eth1:None,sEEMU-eth2:None,sEEMU-eth3:None pid=5422> 
-<OVSController c0: 127.0.0.1:6633 pid=5395> 
-
 '''
 
 
@@ -79,22 +56,13 @@ def interSecureModelNetwork():
 
     info( '*** Starting networking devices\n')
     sPOI =  net.addSwitch( 'sPOI', cls=switchType, dpid='1',failMode='standalone')    
-    Intf( 'enp0s9', node=sPOI )  # EDIT the interface name here! 
-    s0101 = net.addSwitch('s0101', cls=switchType, dpid='2',failMode='standalone')    
-    s0102 = net.addSwitch('s0102', cls=switchType, dpid='3',failMode='standalone')    
-    
+
 
     info( '*** Starting external connection\n')    
-    sEEMU = net.addSwitch('sEEMU', cls=switchType, dpid='4',failMode='standalone')  # switch for the electrical emulator
-    Intf( 'enp0s8', node=sEEMU )  # EDIT the interface name here! 
 
     info( '*** Starting hosts \n')
     PPC   = net.addHost(  'PPC',   cls=Host, ip='10.10.0.4/16', defaultRoute='10.0.0.1',mac='00:00:00:00:00:04')  # PPC
     POI   = net.addHost(  'POI',   cls=Host, ip='10.10.0.5/16', defaultRoute='10.0.0.1',mac='00:00:00:00:00:05')  # POI 
-    LV0101 = net.addHost('LV0101', cls=Host, ip='10.10.1.1/16', defaultRoute='10.0.0.1',mac='00:00:00:00:01:01')  # Gen 0101    
-    LV0102 = net.addHost('LV0102', cls=Host, ip='10.10.1.2/16', defaultRoute='10.0.0.1',mac='00:00:00:00:01:02')  # Gen 0102    
-    #Probe = net.addHost('Probe',   cls=Host, ip='10.10.0.6/16', defaultRoute='10.0.0.1',mac='00:00:00:00:00:05')  # Probe    
-    MITM   = net.addHost(  'MITM',   cls=Host, ip='10.10.0.6/16', defaultRoute='10.0.0.1',mac='00:00:00:00:00:06')  # Man in the Middle 
 
     info( '*** Setting link parameters\n')
     #WAN1 = {'bw':1000,'delay':'20ms','loss':1,'jitter':'10ms'} 
@@ -103,21 +71,10 @@ def interSecureModelNetwork():
 
     info( '*** Adding links\n')
 
-    net.addLink(   POI, sPOI)
-    net.addLink(   PPC, sPOI)
-    net.addLink(  MITM, sPOI)
-
+    net.addLink(  POI, sPOI)
+    net.addLink(  PPC, sPOI)
     #net.addLink(Probe, sPOI)
 
-    net.addLink( sPOI, s0101)
-    net.addLink(s0101, s0102)
-
-    net.addLink(LV0101, s0101)
-    net.addLink(LV0102, s0102)
-
-    net.addLink(  POI, sEEMU)
-    net.addLink(LV0101, sEEMU)
-    net.addLink(LV0102, sEEMU)
 
     #net.addLink(WANR1, DSS1GW, cls=TCLink , **MBPS)
     info( '\n')
@@ -130,36 +87,9 @@ def interSecureModelNetwork():
 
     info( '*** Starting networking devices \n')
     net.get( 'sPOI').start([])
-    net.get('s0101').start([])
-    net.get('s0102').start([])
-    net.get('sEEMU').start([])
     info( '\n')
 
     info( '*** Preparing custom sgsim scripts \n')
-    # #CLI.do_webserver = webserver    
-    net.get(  'POI').cmd('ifconfig POI-eth1 10.20.0.5 netmask 255.255.0.0')
-    #net.get(  'PPC').cmd('ifconfig PPC-eth1 10.10.0.4 netmask 255.255.0.0')
-    #net.get('Probe').cmd('ifconfig Probe-eth1 10.10.0.5 netmask 255.255.0.0')
-    net.get('LV0101').cmd('ifconfig LV0101-eth1 10.20.1.1 netmask 255.255.0.0')
-    net.get('LV0102').cmd('ifconfig LV0102-eth1 10.20.1.2 netmask 255.255.0.0')
-
-    hosts_dict = {}
-    for item in ['PPC','POI','LV0101','LV0102','MITM']:
-        #pid = net.get(item).cmd(f"pgrep -f '{item}'| head -n 1")
-        pid_raw = net.get(item).cmd(f"pgrep -f '{item}'")
-        pid_raws = pid_raw.split('\r\n')
-        print(pid_raws)
-
-        hosts_dict.update({item:{'pid':int(pid_raws[-2])}})
-
-    
-    # Convert dictionary to JSON
-    hosts_json = json.dumps(hosts_dict, indent=4)
-
-    # Write JSON data to a file
-    with open("hosts.json", "w") as json_file:
-        json_file.write(hosts_json)
-
 
     info( '*** Model Started *** \n' )
     CLI(net)

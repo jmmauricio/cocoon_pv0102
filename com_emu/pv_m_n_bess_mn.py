@@ -45,11 +45,10 @@ from mininet.link import TCLink, Intf
 from subprocess import call
 import time 
 import json
+import argparse
 
-def interSecureModelNetwork():
 
-    M = 2
-    N = 3
+def interSecureModelNetwork(M=1, N=2, sEEMU_if = 'enp0s8', sEXT_if = 'enp0s9'):
 
     net = Mininet( topo=None,
                    build=False,
@@ -63,11 +62,11 @@ def interSecureModelNetwork():
 
     switchType = OVSKernelSwitch; 
 
-    info( '*** Starting networking devices\n')
+    ## Real network emulation ########################################################################################
+
+    info( '*** Starting real networking devices\n')
     dpid = 1
     sPOI =  net.addSwitch( 'sPOI', cls=switchType, dpid=f'{dpid}',failMode='standalone')   
-    dpid = 2
-    sEXT =  net.addSwitch( 'sEXT', cls=switchType, dpid=f'{dpid}',failMode='standalone')    
 
     for i_m in range(1,M+1):
         for i_n in range(1,N+1):
@@ -75,18 +74,8 @@ def interSecureModelNetwork():
             name = f"{i_m}".zfill(2) + f"{i_n}".zfill(2)
             net.addSwitch(f's{name}', cls=switchType, dpid=f'{dpid}',failMode='standalone')    
 
-    
+    info( '*** Adding hosts \n')
 
-    info( '*** Starting external connection\n')   
-    dpid += 1 
-    sEEMU = net.addSwitch('sEEMU', cls=switchType, dpid=f'{dpid}',failMode='standalone')  # switch for the electrical emulator
-    Intf(  'enp0s8', node=sEEMU )  # EDIT the interface name here! 
-    #Intf(  'eth1', node=sEEMU )  # EDIT the interface name here! 
-
-    Intf(  'enp0s9', node=sEXT )  # EDIT the interface name here! 
-    Intf( 'enp0s10', node=sPOI )  # EDIT the interface name here! 
-
-    info( '*** Starting hosts \n')
     POI   = net.addHost(  'POI', cls=Host, ip='10.10.0.3/16', defaultRoute='10.10.0.1',mac='00:00:00:00:00:03')  # POI 
     PPC   = net.addHost(  'PPC', cls=Host, ip='10.10.0.4/16', defaultRoute='10.10.0.1',mac='00:00:00:00:00:04')  # PPC
     Probe = net.addHost('Probe', cls=Host, ip='10.10.0.5/16', defaultRoute='10.10.0.1',mac='00:00:00:00:00:05')  # Probe    
@@ -98,18 +87,11 @@ def interSecureModelNetwork():
             name = m_str + n_str 
             net.addHost(f'LV{name}', cls=Host, ip=f'10.10.{i_m}.{i_n}/8', defaultRoute='10.10.0.1',mac=f'00:00:00:00:{m_str}:{n_str}')   
 
-    info( '*** Setting link parameters\n')
-    #WAN1 = {'bw':1000,'delay':'20ms','loss':1,'jitter':'10ms'} 
-    #GBPS = {'delay':'18ms'} 
-    #MBPS = {'bw':10} 
-
-    info( '*** Adding links\n')
+    info( '*** Adding real network links\n')
 
     net.addLink(  POI, sPOI)
     net.addLink(  PPC, sPOI)
     net.addLink(Probe, sPOI)
-
-
 
     for i_m in range(1,M+1):
         name_j = "sPOI"
@@ -119,12 +101,35 @@ def interSecureModelNetwork():
 
             net.addLink(name_j, name_k)
             net.addLink(f"LV{name}", name_k, cls=TCLink, delay='20ms')
-            net.addLink(f"LV{name}", sEEMU)
             name_j = name_k
+    
+    ## Emulation network  ########################################################################################
 
+    info( '*** Starting external connection\n')  
+    dpid += 1
+    sEXT =  net.addSwitch( 'sEXT', cls=switchType, dpid=f'{dpid}',failMode='standalone')     
+    dpid += 1 
+    sEEMU = net.addSwitch('sEEMU', cls=switchType, dpid=f'{dpid}',failMode='standalone')  # switch for the electrical emulator
+    Intf(  sEEMU_if, node=sEEMU )  # EDIT the interface name here! 
+    #Intf(  'eth1', node=sEEMU )  # EDIT the interface name here! 
+
+    Intf(  sEXT_if, node=sEXT )  # EDIT the interface name here! 
+    #Intf( 'enp0s10', node=sPOI )  # EDIT the interface name here! 
+
+
+
+    info( '*** Setting link parameters\n')
+    #WAN1 = {'bw':1000,'delay':'20ms','loss':1,'jitter':'10ms'} 
+    #GBPS = {'delay':'18ms'} 
+    #MBPS = {'bw':10} 
 
     net.addLink(  POI, sEEMU)
     net.addLink(  PPC, sEXT)
+
+    for i_m in range(1,M+1):
+        for i_n in range(1,N+1):
+            name = f"{i_m}".zfill(2) + f"{i_n}".zfill(2)
+            net.addLink(f"LV{name}", sEEMU)
 
     #net.addLink(WANR1, DSS1GW, cls=TCLink , **MBPS)
     info( '\n')
@@ -152,7 +157,7 @@ def interSecureModelNetwork():
 
     info( '*** Preparing custom sgsim scripts \n')
     #CLI.do_webserver = webserver    
-    net.get(  'POI').cmd('ifconfig POI-eth1 10.0.0.3 netmask 255.255.0.0')
+    net.get(  'POI').cmd('ifconfig POI-eth1 10.20.0.3 netmask 255.255.0.0')
     net.get(  'PPC').cmd('ifconfig PPC-eth1 172.20.0.4 netmask 255.255.0.0')
     net.get('Probe').cmd('ifconfig Probe-eth1 10.10.0.5 netmask 255.255.0.0')
 
@@ -164,7 +169,7 @@ def interSecureModelNetwork():
             name = m_str + n_str 
             net.get(f's{name}').start([])
 
-            net.get(f'LV{name}').cmd(f'ifconfig LV{name}-eth1 10.0.{m_str}.{n_str} netmask 255.255.0.0')
+            net.get(f'LV{name}').cmd(f'ifconfig LV{name}-eth1 10.20.{m_str}.{n_str} netmask 255.255.0.0')
 
     hosts_dict = {}
     for item in ['POI']:
@@ -206,107 +211,22 @@ def interSecureModelNetwork():
    
 if __name__ == '__main__':
     setLogLevel( 'info' )
-    interSecureModelNetwork()
 
 
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-m", help="number of feeders")
+    parser.add_argument("-n", help="number of generators per feeder")
+    parser.add_argument("-sEEMU_if", help="Emulator interface")
+    parser.add_argument("-sEXT_if", help="PPC External interface")
 
+    args = parser.parse_args()
+    print(args)
+    m = int(args.m)
+    n = int(args.n)
+    sEEMU_if = args.sEEMU_if
+    sEXT_if = args.sEXT_if
 
-
-# from mininet.net import Mininet
-# from mininet.topo import Topo
-# from mininet.node import RemoteController
-# from mininet.cli import CLI
-# from mininet.link import Intf
-# import time
-
-# def build():
-
-#     net = Mininet(topo=None, build=False, waitConnected=True )
-#     # Add switches
-#     s1 = net.addSwitch('s1')
-#     s2 = net.addSwitch('s2')
-
-#     net.addController(name='c1', node=s1)
-#     net.addController(name='c2', node=s2)
-
-#     # Add hosts to the first network
-#     hPOI = net.addHost('h0001', ip='10.0.0.1/16')
-#     hPPC = net.addHost('h0003', ip='10.0.0.3/16')
-#     LV0101 = net.addHost('LV0101', ip='10.0.1.1/16')
-#     LV0102 = net.addHost('LV0102', ip='10.0.1.2/16')
-
-#     hPROB1 = net.addHost( 'h0005', ip='10.0.0.5/16')
-#     hEMEC =  net.addHost('h00001', ip='192.168.2.1/16')
-
-#     # h14 = net.get( 'h14' )
-#     # h14.setIP('192.168.1.4')
-
-#     #nat = net.addNAT(node=net.get( 's2' ), ip='192.168.1.6/24')
-#     #nat = net.addNAT(node=net.get( 's2' ))
-
-
-#     #Intf( 'enp0s8', node=net.get( 's2' ) )
-
-#     # Connect hosts to switches
-#     net.addLink(  hPOI, s1)
-#     net.addLink(  hPPC, s1)
-#     net.addLink( LV0101, s1)
-#     net.addLink( LV0102, s1)
-#     net.addLink(hPROB1, s1)
-
-#     net.addLink( hPOI, s2, params1={ 'ip' : '192.168.0.1/16' })
-#     net.addLink(LV0101, s2, params1={ 'ip' : '192.168.1.1/16' })
-#     net.addLink(LV0102, s2, params1={ 'ip' : '192.168.1.2/16' })
-#     net.addLink(hEMEC, s2)
-
-
-
-#     return net
- 
-
-#     # Connect switches
-#     #self.addLink(s1, s2)
-
-# def create_network():
-#     net = build()   
-#     net.start()
-#     net.pingAll()  # Optional: Test connectivity between hosts
-#     print('Network started')
-
-#     # hPOI = net.get('h0001')
-#     # hPPC = net.get('h0003')
-#     # LV0101 = net.get('LV0101')
-#     # LV0102 = net.get('LV0102')
-
-#     # hPROB1 = net.get( 'h0005')
-#     # hEMEC =  net.get('h00001')
-
-#     # hEMEC.sendCmd('python3 emulator.py &')
-#     # time.sleep(10)
-#     # print('Emulator started')
-
-#     # hPOI.sendCmd('python3 edge.py POI -cfg_dev config_devices.json &')
-#     # time.sleep(2)
-#     # # hPOI.cmd('curl http://192.168.2.1:8000/measures')
-#     # # hPOI.cmd('curl http://192.168.2.1:8000/measures')
-#     # print('POI started')
-
-#     # LV0101.sendCmd('python3 edge.py LV0101 -cfg_dev config_devices.json &')
-#     # time.sleep(2)
-#     # # LV0101.cmd('curl http://192.168.2.1:8000/measures')
-#     # # LV0101.cmd('curl http://192.168.2.1:8000/measures')
-#     # print('Gen 0101')
-
-#     # LV0102.sendCmd('python3 edge.py LV0102 -cfg_dev config_devices.json &')
-#     # time.sleep(2)
-#     # # LV0102.cmd('curl http://192.168.2.1:8000/measures')
-#     # # LV0102.cmd('curl http://192.168.2.1:8000/measures')
-#     # print('Gen 0102')
-
-    
-#     #net.pingAll()  # Optional: Test connectivity between hosts
-#     CLI(net)
-#     net.stop()
-
-# if __name__ == '__main__':
-#     create_network()
+    if sEEMU_if == None: sEEMU_if = 'enp0s8' 
+    if sEXT_if == None: sEXT_if = 'enp0s9' 
+        
+    interSecureModelNetwork(m,n,sEEMU_if,sEXT_if)

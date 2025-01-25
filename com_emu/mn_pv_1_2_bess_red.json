@@ -1,0 +1,14 @@
+{
+    "hosts":[
+        {"name":"PPC","ip":"10.10.0.4/16","mac":"00:00:00:00:00:04"},
+        {"name":"POI","ip":"10.10.0.5/16","mac":"00:00:00:00:00:05"}
+    ],
+    "switches":[
+        {"name":"sPOI"}
+    ],
+    "links":[
+        {"node_j":"PPC", "node_k":"sPOI"},
+        {"node_j":"POI", "node_k":"sPOI"}
+    ]
+
+}

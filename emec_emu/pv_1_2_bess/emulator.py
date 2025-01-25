@@ -274,8 +274,9 @@ class Emulator():
             return Response(content=json.dumps(dimensions), media_type='application/json')
       
         print('run uvicorn')
-        uvicorn.run(app,host="0.0.0.0", port = 8000, log_level='critical')
-        print('uvicorn ran')
+        port = 8500
+        uvicorn.run(app,host="0.0.0.0", port = port, log_level='critical')
+        print('uvicorn running at port {port}')
 
 
     async def calculate_states(self, V_LV):
@@ -380,8 +381,6 @@ if __name__ == "__main__":
     parser.add_argument("-cfg_ctrl", help="id name of the device")
     args = parser.parse_args()
 
-    mode = 'dmlm'
-
     emu = Emulator()
     
     pvs = emu.config["input"]["pvs"]
@@ -401,13 +400,13 @@ if __name__ == "__main__":
                                f'PRampUp_LV{name}': inv_resp["PRampUp"],
                                f'QRampDown_LV{name}': inv_resp["QRampDown"],
                                f'QRampUp_LV{name}': inv_resp["QRampUp"]})
-    print('run ini')
+    # print('run ini')
 
     
 
     # print('run start_api')
 
-    # emu.start_api()
+
 
     from colinker.colinker import Linker,modbus_server
     from multiprocessing import Process
@@ -418,7 +417,7 @@ if __name__ == "__main__":
     link = Linker(name, args.cfg_dev, args.cfg_ctrl)
     emu.link = link
     link.setup_multiple_device()
-    p_modbus_server = Process(target=modbus_server, args=(link.modbus_linker_ip,link.modbus_linker_port,))
+    p_modbus_server = Process(target=modbus_server, args=(link.emec_emulator_ip,link.emec_emulator_port))
 
     p_modbus_server.start()
     time.sleep(1)
@@ -429,6 +428,8 @@ if __name__ == "__main__":
 
     emu.ini(params_ini)
     emu.start()
+    emu.start_api()
+
     # def lin():
     #     name = 'LINKER'
     #     mode = 'lmev'

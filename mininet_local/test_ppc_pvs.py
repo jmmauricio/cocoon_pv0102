@@ -1,6 +1,21 @@
+'''
+This file have to be run within inside mininet: 
+
+    mininet> PPC python3 ./mininet_local/test_ppc_pvs.py
+
+Example:
+
+    mininet> PPC python3 ./mininet_local/test_ppc_pvs.py
+    V_POI = 1.020
+    LV0101: P = 900.00 kW
+    LV0102: P = 900.00 kW
+    LV0101: Q = 500.00 kvar
+    LV0102: Q = 500.00 kvar
+
+'''
 from colinker.modbus.modbus_client import Modbus_client
 
-# PPC python3 test_mininet_local.py
+# POI python3 test_mininet_local.py
 ip = "10.10.0.5"
 port = 5002
 mb = Modbus_client(ip,port=port)
@@ -8,6 +23,14 @@ mb.start()
 reg_number = 372
 value = mb.read(reg_number, 'int16',format = 'AB')
 print(f'V_POI = {value/1000:0.3f}')
+
+reg_number = 370
+value = mb.read(reg_number, 'int32',format = 'CDAB')
+print(f'P_POI = {value:0.3f}')
+reg_number = 374
+value = mb.read(reg_number, 'int32',format = 'CDAB')
+print(f'Q_POI = {value:0.3f}')
+
 mb.close()
 
 
@@ -15,6 +38,18 @@ ip_prefix = "10.10"
 port = "5002"
 M=1
 N=2
+   
+# active power references 
+p_ppc = int(0.9e6)
+for m in range(M):
+    for n in range(N):
+        name =  f'LV{str(m+1).zfill(2)}{str(n+1).zfill(2)}'
+        ip = f'{ip_prefix}.{str(m+1)}.{str(n+1)}'
+        mb = Modbus_client(ip,port=port)
+        mb.start()
+        reg_number = 40424
+        mb.write(p_ppc, reg_number, 'uint32',format = 'CDAB')
+        mb.close()
 
 # active power measurements 
 for m in range(M):
@@ -26,25 +61,11 @@ for m in range(M):
         reg_number = 40525
         p = mb.read(reg_number, 'int32',format = 'CDAB')
         mb.close()
-        print(f'{name}: P = {p/1000:5.2f} kvar')
+        print(f'{name}: P = {p/1000:5.2f} kW')
+
         
-# active power references 
-p_ppc = int(0.9e6)
-for m in range(M):
-    for n in range(N):
-        name =  f'LV{str(m+1).zfill(2)}{str(n+1).zfill(2)}'
-        ip = f'{ip_prefix}.{str(m+1)}.{str(n+1)}'
-        mb = Modbus_client(ip,port=port)
-        mb.start()
-        reg_number = 40424
-        mb.write(p_ppc, reg_number, 'int32',format = 'CDAB')
-        mb.close()
-
-
-
-
 # reactive power references 
-q_ppc = int(-0.5e6)
+q_ppc = int(0.5e6)
 for m in range(M):
     for n in range(N):
         name =  f'LV{str(m+1).zfill(2)}{str(n+1).zfill(2)}'
@@ -67,16 +88,3 @@ for m in range(M):
         mb.close()
         print(f'{name}: Q = {q/1000:5.2f} kvar')
 
-
-
-
-# '''
-# 2024-09-18 06:27:53,347 device: p_s_ppc_LV0102@127.0.1.2:50102/40424 = 0 -> linker: p_s_ppc_LV0102@127.100.0.1:5000/2000
-# 2024-09-18 06:27:53,349 device: q_s_ppc_LV0102@127.0.1.2:50102/40426 = 100000 -> linker: q_s_ppc_LV0102@127.100.0.1:5000/2004
-# 2024-09-18 06:27:53,350 linker: p_s_LV0102@127.100.0.1:5000/2008 = 0 (int32) -> device: p_s_LV0102@127.0.1.2:50102/40525
-# 2024-09-18 06:27:53,352 linker: q_s_LV0102@127.100.0.1:5000/2012 = 99999 (int32) -> device: q_s_LV0102@127.0.1.2:50102/40544
-# 2024-09-18 06:27:53,404 device: p_s_ppc_LV0102@127.0.1.2:50102/40424 = 0 -> linker: p_s_ppc_LV0102@127.100.0.1:5000/2000
-# 2024-09-18 06:27:53,405 device: q_s_ppc_LV0102@127.0.1.2:50102/40426 = 100000 -> linker: q_s_ppc_LV0102@127.100.0.1:5000/2004
-# 2024-09-18 06:27:53,406 linker: p_s_LV0102@127.100.0.1:5000/2008 = 0 (int32) -> device: p_s_LV0102@127.0.1.2:50102/40525
-# 2024-09-18 06:27:53,407 linker: q_s_LV0102@127.100.0.1:5000/2012 = 99999 (int32) -> device: q_s_LV0102@127.0.1.2:50102/40544
-# '''

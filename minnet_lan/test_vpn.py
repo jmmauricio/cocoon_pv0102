@@ -1,10 +1,10 @@
 from colinker.modbus.modbus_client import Modbus_client
 
-ip = "127.0.0.3"
-port = 50003
+ip = "10.0.0.10"
+port = 5200
 mb = Modbus_client(ip,port=port)
 mb.start()
-reg_number = 372
+reg_number = 500
 value = mb.read(reg_number, 'int16',format = 'AB')
 print(f'V_POI = {value/1000:0.3f}')
 mb.close()
@@ -20,11 +20,9 @@ p_ppc = int(0.9e6)
 for m in range(M):
     for n in range(N):
         name =  f'LV{str(m+1).zfill(2)}{str(n+1).zfill(2)}'
-        ip = f'{ip_prefix}.{str(m+1)}.{str(n+1)}'
-        port = int(f'{port_prefix}{str(m+1).zfill(2)}{str(n+1).zfill(2)}')
         mb = Modbus_client(ip,port=port)
         mb.start()
-        reg_number = 40424
+        reg_number = (m+1)*1000
         mb.write(p_ppc, reg_number, 'int32',format = 'CDAB')
         mb.close()
 
@@ -32,26 +30,22 @@ for m in range(M):
 for m in range(M):
     for n in range(N):
         name =  f'LV{str(m+1).zfill(2)}{str(n+1).zfill(2)}'
-        ip = f'{ip_prefix}.{str(m+1)}.{str(n+1)}'
-        port = int(f'{port_prefix}{str(m+1).zfill(2)}{str(n+1).zfill(2)}')
         mb = Modbus_client(ip,port=port)
         mb.start()
-        reg_number = 40525
+        reg_number = (m+1)*1000+8
         p = mb.read(reg_number, 'int32',format = 'CDAB')
         mb.close()
         print(f'{name}: P = {p/1000:5.2f} kvar')
 
 
 # reactive power references 
-q_ppc = int(0.1e6)
+q_ppc = int(0.8e6)
 for m in range(M):
     for n in range(N):
         name =  f'LV{str(m+1).zfill(2)}{str(n+1).zfill(2)}'
-        ip = f'{ip_prefix}.{str(m+1)}.{str(n+1)}'
-        port = int(f'{port_prefix}{str(m+1).zfill(2)}{str(n+1).zfill(2)}')
         mb = Modbus_client(ip,port=port)
         mb.start()
-        reg_number = 40426
+        reg_number = (m+1)*1000+4
         mb.write(q_ppc, reg_number, 'int32',format = 'CDAB')
         mb.close()
 
@@ -59,11 +53,9 @@ for m in range(M):
 for m in range(M):
     for n in range(N):
         name =  f'LV{str(m+1).zfill(2)}{str(n+1).zfill(2)}'
-        ip = f'{ip_prefix}.{str(m+1)}.{str(n+1)}'
-        port = int(f'{port_prefix}{str(m+1).zfill(2)}{str(n+1).zfill(2)}')
         mb = Modbus_client(ip,port=port)
         mb.start()
-        reg_number = 40544
+        reg_number = (m+1)*1000+12
         q = mb.read(reg_number, 'int32',format = 'CDAB')
         mb.close()
         print(f'{name}: Q = {q/1000:5.2f} kvar')

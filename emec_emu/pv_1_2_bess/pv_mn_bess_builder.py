@@ -50,7 +50,16 @@ for i_m in range(1,M+1):
         data['lines'].append({"bus_j":f"{name_k}","bus_k":f"{name_j}","X_pu":0.01,"R_pu":0.01,"Bs_pu":0.0,"S_mva":1.2*S_pv_mva*(N-i_n+1),"monitor":False})
         name_j = name_k
         data['pvs'].append({"bus":f"LV{name}","type":"pv_dq_d","S_n":S_pv_mva*1e6,"U_n":400.0,"F_n":50.0,"X_s":0.1,"R_s":0.0001,"monitor":False,
-                            "I_sc":8,"V_oc":42.1,"I_mp":3.56,"V_mp":33.7,"K_vt":-0.160,"K_it":0.065,"N_pv_s":25,"N_pv_p":250})
+                            "I_sc":8,"V_oc":42.1,"I_mp":3.56,"V_mp":33.7,"K_vt":-0.160,"K_it":0.065,"N_pv_s":25,"N_pv_p":250,
+                            # Open loop
+                              "A_p":[[ 0.33137699,  2.1000962 ], [-9.11825055, -6.20455623]],
+                              "B_p":[[-3.44429742], [-5.67395313]],
+                              "C_p":[[-0.53651084, -0.02498652]],
+                              "D_p":[[0.]],   
+                              "A_q":[[ 0.33137699,  2.1000962 ], [-9.11825055, -6.20455623]],
+                              "B_q":[[-3.44429742], [-5.67395313]],
+                              "C_q":[[-0.53651084, -0.02498652]],
+                              "D_q":[[0.]]})
     
 
 #grid.dae['params_dict'].update({f'{str(T_lp1)}':0.1,f'{str(T_lp2)}':0.1})
@@ -63,8 +72,9 @@ grid.verbose = True
 # grid.construct(f'pv_{M}_{N}')
 
 #build_numba(grid.sys_dict, platform='Windows')
-# build_numba(grid.sys_dict)
 grid.build(f'pv_{M}_{N}')
+#grid.build_mkl_win(f'pv_{M}_{N}')
+
 
 
 makeconfigs.simulator(M,N,S_pv_mva,S_bess_mva, V_kv, F,True)

@@ -14,14 +14,14 @@ def get_idx(emulator):
     emulator.array_V_y_idxs = np.array(emulator.V_y_idxs)+emulator.model.N_x
     emulator.lvrt_ext_y_idxs = [  emulator.model.inputs_run_list.index(f'lvrt_ext_{name}') for name in emulator.gen_names_list]
     emulator.v_lvrt_idxs = [  emulator.model.params_list.index(f'v_lvrt_{name}') for name in emulator.gen_names_list]
-    emulator.t_lp1p_idxs = [emulator.model.params_list.index(f'T_lp1p_{name}') for name in emulator.gen_names_list]
-    emulator.t_lp2p_idxs = [emulator.model.params_list.index(f'T_lp2p_{name}') for name in emulator.gen_names_list]
-    emulator.t_lp1q_idxs = [emulator.model.params_list.index(f'T_lp1q_{name}') for name in emulator.gen_names_list]
-    emulator.t_lp2q_idxs = [emulator.model.params_list.index(f'T_lp2q_{name}') for name in emulator.gen_names_list]
-    emulator.pramp_up_idxs = [emulator.model.params_list.index(f'PRampUp_{name}') for name in emulator.gen_names_list]
-    emulator.pramp_down_idxs = [emulator.model.params_list.index(f'PRampDown_{name}') for name in emulator.gen_names_list]
-    emulator.qramp_up_idxs = [emulator.model.params_list.index(f'QRampUp_{name}') for name in emulator.gen_names_list]
-    emulator.qramp_down_idxs = [emulator.model.params_list.index(f'QRampDown_{name}') for name in emulator.gen_names_list]
+    # emulator.t_lp1p_idxs = [emulator.model.params_list.index(f'T_lp1p_{name}') for name in emulator.gen_names_list]
+    # emulator.t_lp2p_idxs = [emulator.model.params_list.index(f'T_lp2p_{name}') for name in emulator.gen_names_list]
+    # emulator.t_lp1q_idxs = [emulator.model.params_list.index(f'T_lp1q_{name}') for name in emulator.gen_names_list]
+    # emulator.t_lp2q_idxs = [emulator.model.params_list.index(f'T_lp2q_{name}') for name in emulator.gen_names_list]
+    # emulator.pramp_up_idxs = [emulator.model.params_list.index(f'PRampUp_{name}') for name in emulator.gen_names_list]
+    # emulator.pramp_down_idxs = [emulator.model.params_list.index(f'PRampDown_{name}') for name in emulator.gen_names_list]
+    # emulator.qramp_up_idxs = [emulator.model.params_list.index(f'QRampUp_{name}') for name in emulator.gen_names_list]
+    # emulator.qramp_down_idxs = [emulator.model.params_list.index(f'QRampDown_{name}') for name in emulator.gen_names_list]
         
         
 def get_names(emulator):
