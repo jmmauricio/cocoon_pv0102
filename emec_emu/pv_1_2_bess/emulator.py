@@ -320,6 +320,7 @@ class Emulator():
 
     def step_loop(self):
         t = 0.0
+        print(f'Dt_mid = {self.Dt_mid}')
         self.model.step(t+self.Dt_mid,{})
 
         t_0 = time.perf_counter_ns()
@@ -327,14 +328,16 @@ class Emulator():
         count = 0
         self.model.t = 0
 
+
         while True:
             t = time.perf_counter_ns()-t_0
             prev = time.perf_counter_ns()
-            self.model.step(t/1e9+self.Dt_mid,{})
 
             for item in self.link.emec_setpoints_dict:
                 u_idx = self.model.inputs_run_list.index(item)
                 self.model.u_run[u_idx] = self.link.emec_setpoints_dict[item]
+
+            self.model.step(t/1e9+self.Dt_mid,{})
 
             for item in self.link.measurements_dict:
                 self.link.measurements_dict[item] = self.model.get_value(item)
@@ -414,9 +417,16 @@ if __name__ == "__main__":
     name = 'LINKER'
     mode = 'lmev'
 
-    link = Linker(name, args.cfg_dev, args.cfg_ctrl)
+    if args.cfg_ctrl == None:
+        cfg_ctrl = ''
+    else:
+        cfg_ctrl = args.cfg_ctrl
+
+
+    link = Linker(name, args.cfg_dev, cfg_ctrl)
     emu.link = link
     link.setup_multiple_device()
+
     p_modbus_server = Process(target=modbus_server, args=(link.emec_emulator_ip,link.emec_emulator_port))
 
     p_modbus_server.start()

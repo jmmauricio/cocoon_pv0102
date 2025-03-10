@@ -28,8 +28,8 @@ time.sleep(1)
 data = {
     "P_POI_ref": 0.5,
     "Q_POI_ref": 0.0,
-    "Q_POI_sin_ref_amplitude": 0.0,
-    "Q_POI_sin_ref_hz": 0.2
+    "Q_POI_sin_ref_amplitude":0,
+    "Q_POI_sin_ref_hz": 0.5
 }
 response = requests.post(url, headers=headers, data=json.dumps(data))
 

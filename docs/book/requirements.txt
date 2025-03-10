@@ -1,0 +1,12 @@
+jupyter-book
+sphinx_panels
+cffi
+numpy
+scipy
+sympy 
+matplotlib
+numba
+bokeh
+pydae
+pandas
+svgwrite

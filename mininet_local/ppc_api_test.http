@@ -45,8 +45,8 @@ POST http://127.100.0.1:8500/irrad
 Content-Type: application/json
 
 {
-    "irrad_LV0101": 0.2,
-    "irrad_LV0102": 0.2
+    "irrad_LV0101":1,
+    "irrad_LV0102":1
 }
 
 

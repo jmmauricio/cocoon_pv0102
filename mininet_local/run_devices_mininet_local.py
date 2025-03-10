@@ -16,7 +16,7 @@ def run_command(host):
     host_pid = host['host_pid']
     emec_api_id = host['emec_api_id']
 
-    command = f"sudo mnexec -a {host_pid} python3 run_device.py {emec_api_id} dmlm -cfg_dev ./mininet_local/config_devices_mininet_local.json -cfg_ctrl ./config_controller.json"
+    command = f"sudo mnexec -a {host_pid} python3 run_device.py {emec_api_id} dmlm -cfg_dev ./mininet_local/config_devices_mininet_local.json"
     print(command)
     subprocess.run(command, shell=True)
 
@@ -27,7 +27,7 @@ def run_in_host(json_file):
         hosts_dict = json.load(fobj)
 
     for item in hosts_dict:
-        if not item in ['PPC','MITM']: 
+        if not item in ['PPC','MITM','CPN']: 
             host_pid = hosts_dict[item]['pid']
             api_id = item
             host_dict = {'host_id':item, 'emec_api_id':api_id,'host_pid':host_pid}

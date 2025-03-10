@@ -12,6 +12,8 @@ if __name__ == "__main__":
     ppc = PPC(cfg_dev_path,cfg_ctrl=cfg_ctrl_path) 
     ppc.Dt_mid = 0.2
     ppc.Dt_meas = 0.1
-    ppc.K_qi = 0.0
+    ppc.K_qi = 0.8
+    ppc.debug = True
+
     ppc.start_ctrl()
     ppc.start_api()

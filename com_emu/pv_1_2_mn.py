@@ -79,7 +79,7 @@ def interSecureModelNetwork():
 
     info( '*** Starting networking devices\n')
     sPOI =  net.addSwitch( 'sPOI', cls=switchType, dpid='1',failMode='standalone')    
-    Intf( 'enp0s9', node=sPOI )  # EDIT the interface name here! 
+    #Intf( 'enp0s9', node=sPOI )  # EDIT the interface name here! 
     s0101 = net.addSwitch('s0101', cls=switchType, dpid='2',failMode='standalone')    
     s0102 = net.addSwitch('s0102', cls=switchType, dpid='3',failMode='standalone')    
     
@@ -87,14 +87,19 @@ def interSecureModelNetwork():
     info( '*** Starting external connection\n')    
     sEEMU = net.addSwitch('sEEMU', cls=switchType, dpid='4',failMode='standalone')  # switch for the electrical emulator
     Intf( 'enp0s8', node=sEEMU )  # EDIT the interface name here! 
+    sKALI = net.addSwitch('sKALI', cls=switchType, dpid='5',failMode='standalone')  # switch for the electrical emulator
+    Intf( 'enp0s10', node=sKALI )  # EDIT the interface name here! 
 
     info( '*** Starting hosts \n')
-    PPC   = net.addHost(  'PPC',   cls=Host, ip='10.10.0.4/16', defaultRoute='10.0.0.1',mac='00:00:00:00:00:04')  # PPC
-    POI   = net.addHost(  'POI',   cls=Host, ip='10.10.0.5/16', defaultRoute='10.0.0.1',mac='00:00:00:00:00:05')  # POI 
-    LV0101 = net.addHost('LV0101', cls=Host, ip='10.10.1.1/16', defaultRoute='10.0.0.1',mac='00:00:00:00:01:01')  # Gen 0101    
-    LV0102 = net.addHost('LV0102', cls=Host, ip='10.10.1.2/16', defaultRoute='10.0.0.1',mac='00:00:00:00:01:02')  # Gen 0102    
+    PPC    = net.addHost(   'PPC', cls=Host,    ip='10.10.0.4/16', defaultRoute='10.0.0.1',mac='00:00:00:00:00:04')  # PPC
+    POI    = net.addHost(   'POI', cls=Host,    ip='10.10.0.5/16', defaultRoute='10.0.0.1',mac='00:00:00:00:00:05')  # POI 
+    LV0101 = net.addHost('LV0101', cls=Host,    ip='10.10.1.1/16', defaultRoute='10.0.0.1',mac='00:00:00:00:01:01')  # Gen 0101    
+    LV0102 = net.addHost('LV0102', cls=Host,    ip='10.10.1.2/16', defaultRoute='10.0.0.1',mac='00:00:00:00:01:02')  # Gen 0102    
+    BESS   = net.addHost(  'BESS', cls=Host,  ip='10.10.0.100/16', defaultRoute='10.0.0.1',mac='00:00:00:00:00:64')  # BESS    
+    MITM   = net.addHost(  'MITM', cls=Host,    ip='10.10.0.6/16', defaultRoute='10.0.0.1',mac='00:00:00:00:00:06')  # Man in the Middle 
+    CPN    = net.addHost(   'CPN', cls=Host,   ip='10.10.0.10/16', defaultRoute='10.0.0.1',mac='00:00:00:00:00:10')  # CPN 
+
     #Probe = net.addHost('Probe',   cls=Host, ip='10.10.0.6/16', defaultRoute='10.0.0.1',mac='00:00:00:00:00:05')  # Probe    
-    MITM   = net.addHost(  'MITM',   cls=Host, ip='10.10.0.6/16', defaultRoute='10.0.0.1',mac='00:00:00:00:00:06')  # Man in the Middle 
 
     info( '*** Setting link parameters\n')
     #WAN1 = {'bw':1000,'delay':'20ms','loss':1,'jitter':'10ms'} 
@@ -106,7 +111,8 @@ def interSecureModelNetwork():
     net.addLink(   POI, sPOI)
     net.addLink(   PPC, sPOI)
     net.addLink(  MITM, sPOI)
-
+    net.addLink(   CPN, sPOI)
+    net.addLink(  BESS, sPOI)
     #net.addLink(Probe, sPOI)
 
     net.addLink( sPOI, s0101)
@@ -115,9 +121,12 @@ def interSecureModelNetwork():
     net.addLink(LV0101, s0101)
     net.addLink(LV0102, s0102)
 
-    net.addLink(  POI, sEEMU)
+    net.addLink(   POI, sEEMU)
     net.addLink(LV0101, sEEMU)
     net.addLink(LV0102, sEEMU)
+    net.addLink(  BESS, sEEMU)
+
+    net.addLink(  sKALI, sPOI)
 
     #net.addLink(WANR1, DSS1GW, cls=TCLink , **MBPS)
     info( '\n')
@@ -133,6 +142,8 @@ def interSecureModelNetwork():
     net.get('s0101').start([])
     net.get('s0102').start([])
     net.get('sEEMU').start([])
+    net.get('sKALI').start([])
+
     info( '\n')
 
     info( '*** Preparing custom sgsim scripts \n')
@@ -142,13 +153,15 @@ def interSecureModelNetwork():
     #net.get('Probe').cmd('ifconfig Probe-eth1 10.10.0.5 netmask 255.255.0.0')
     net.get('LV0101').cmd('ifconfig LV0101-eth1 10.20.1.1 netmask 255.255.0.0')
     net.get('LV0102').cmd('ifconfig LV0102-eth1 10.20.1.2 netmask 255.255.0.0')
+    net.get('BESS').cmd('ifconfig BESS-eth1 10.20.0.100 netmask 255.255.0.0')
 
     hosts_dict = {}
-    for item in ['PPC','POI','LV0101','LV0102','MITM']:
+    for item in ['PPC','POI','LV0101','LV0102','BESS','MITM','CPN']:
         #pid = net.get(item).cmd(f"pgrep -f '{item}'| head -n 1")
         pid_raw = net.get(item).cmd(f"pgrep -f '{item}'")
         pid_raws = pid_raw.split('\r\n')
-        print(pid_raws)
+        print(f'{item}:')
+        print(f'sudo mnexec -a {int(pid_raws[-2])} python3 ')
 
         hosts_dict.update({item:{'pid':int(pid_raws[-2])}})
 

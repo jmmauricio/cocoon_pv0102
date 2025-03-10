@@ -89,6 +89,8 @@ Open new terminal and run devices.
 Each device linker is attached to the respective host:
     cd cocoon_pv0102
     sudo python3 run_devices_mininet_local.py 
+    sudo mnexec -a 19272 python3 run_ppc.py
+    
     
 Some tests can be found at folder `mininet_local`:
 - `test_eemu_reach.py` to test the E-Emulator can be reached

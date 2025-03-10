@@ -111,6 +111,67 @@
                                 "scale": 1
                             }
                         }
+                    },
+                    {
+                        "id": "bess",
+                        "type": "modbus-gen",
+                        "interval": 200,
+                        "config": {
+                            "ActivePower": {
+                                "address": 40525,
+                                "reg_type": "holding",
+                                "slaveID": 1,
+                                "type": "int32",
+                                "size": 4,
+                                "format": "CDAB",
+                                "scale": 1
+                            },
+                            "ReactivePower": {
+                                "address": 40544,
+                                "reg_type": "holding",
+                                "slaveID": 1,
+                                "type": "int32",
+                                "size": 4,
+                                "format": "CDAB",
+                                "scale": 1
+                            },
+                            "VoltageAVG": {
+                                "address": 40546,
+                                "reg_type": "holding",
+                                "slaveID": 1,
+                                "type": "int32",
+                                "size": 4,
+                                "format": "CDAB",
+                                "scale": 0.001
+                            },
+                            "SoC": {
+                                "address": 40548,
+                                "reg_type": "holding",
+                                "slaveID": 1,
+                                "type": "int32",
+                                "size": 4,
+                                "format": "CDAB",
+                                "scale": 0.001
+                            },
+                            "SetActivePower": {
+                                "address": 40424,
+                                "reg_type": "holding",
+                                "slaveID": 1,
+                                "type": "int32",
+                                "size": 4,
+                                "format": "CDAB",
+                                "scale": 1
+                            },
+                            "SetReactivePower": {
+                                "address": 40426,
+                                "reg_type": "holding",
+                                "slaveID": 1,
+                                "type": "int32",
+                                "size": 4,
+                                "format": "CDAB",
+                                "scale": 1
+                            }
+                        }
                     }
                 ],
                 "devices": [
@@ -133,6 +194,14 @@
                     {
                         "id": "inv2",
                         "adapterID": "inv",
+                        "info": {
+                            "host": "simulator",
+                            "port": 2003
+                        }
+                    },
+                    {
+                        "id": "bess1",
+                        "adapterID": "bess",
                         "info": {
                             "host": "simulator",
                             "port": 2003

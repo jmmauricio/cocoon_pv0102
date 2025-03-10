@@ -17,7 +17,7 @@ from colinker.modbus.modbus_client import Modbus_client
 
 # POI python3 test_mininet_local.py
 ip = "10.10.0.5"
-port = 5002
+port = 502
 mb = Modbus_client(ip,port=port)
 mb.start()
 reg_number = 372
@@ -35,7 +35,7 @@ mb.close()
 
 
 ip_prefix = "10.10"
-port = "5002"
+port = "502"
 M=1
 N=2
    
